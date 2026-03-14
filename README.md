@@ -2,7 +2,16 @@
 
 A standalone terminal-based application for teams to participate in STEM Week competitions.
 
-## Features
+## 🚀 Download & Fast Start
+
+### Windows (Recommended)
+1. **Download**: Get the latest `StemWeek_User_Portal.exe` from the [GitHub Releases](https://github.com/ducminh090508-lgtm/user-app/releases).
+2. **Configure**: Place the `config.ini` file in the same folder as the `.exe`. Update the `ip` field with the server IP provided by the administrator.
+3. **Run**: Double-click `StemWeek_User_Portal.exe` to start.
+
+---
+
+## 🛠 Features
 
 - **Team Login**: Secure PIN-based access for team participation
 - **Question Interface**: Interactive module selection for different subjects (BIO, CHEM, MATH & PHYSICS, CS)
@@ -11,47 +20,24 @@ A standalone terminal-based application for teams to participate in STEM Week co
 - **Answer Submission**: Submit answers with instant feedback
 - **Multi-page Navigation**: Easy switching between questions, timer, and leaderboard
 
-## Quick Start
+## 💻 Manual Setup (Developers / macOS / Linux)
 
-### Windows
-
-1. Extract the user-app folder
-2. Open Command Prompt and navigate to the user-app folder
+### Installation
+1. Clone this repository or download the source code.
+2. Open your terminal and navigate to the folder.
 3. Install dependencies:
-   ```
+   ```bash
    pip install -r requirements.txt
    ```
-4. Update `config.ini` with your server IP address
+4. Update `config.ini` with your server IP address.
 5. Run the app:
-   ```
+   ```bash
    python main.py
    ```
-   or double-click `run.bat`
 
-### macOS / Linux
+*(On macOS/Linux, you may need to use `python3` and `pip3`)*
 
-1. Extract the user-app folder
-2. Open Terminal and navigate to the user-app folder
-3. Ensure you have the `python3-venv` package installed (e.g. `sudo apt install python3-venv`).
-4. Install dependencies:
-   ```
-   pip3 install -r requirements.txt
-   ```
-   *(or simply run `./run.sh` which installs automatically)*
-5. Update `config.ini` with your server IP address
-6. Make launcher executable once:
-   ```sh
-   chmod +x run.sh
-   ```
-7. Run the app:
-   ```sh
-   ./run.sh
-   ```
-   or `python3 main.py`
-
-> The launcher will create a `.venv` directory on first run and install all dependencies inside it, avoiding system-wide package installs.
-
-## Configuration
+## ⚙️ Configuration
 
 Edit `config.ini` to set your server connection:
 
@@ -61,7 +47,7 @@ ip = 192.168.1.100      # Change to your server IP
 port = 8080             # Change if using a different port
 ```
 
-## Keyboard Controls
+## ⌨️ Keyboard Controls
 
 ### Login Screen
 - Type your team PIN and press Enter
@@ -76,7 +62,7 @@ port = 8080             # Change if using a different port
 ### Entering Answers
 - Type your answer and press Enter
 
-## Team PINs
+## 👥 Team PINs
 
 Default team PINs (can be configured):
 - `1001` - test1
@@ -84,7 +70,7 @@ Default team PINs (can be configured):
 - `1234` - Team Alpha
 - `5678` - Team Beta
 
-## Troubleshooting
+## 🔍 Troubleshooting
 
 **Can't connect to server**
 - Verify the server IP in `config.ini` is correct
@@ -95,13 +81,8 @@ Default team PINs (can be configured):
 - Contact your event administrator to confirm your team PIN
 - Ensure you're using the correct PIN (case-sensitive)
 
-**Import errors or missing packages**
-- Delete the `__pycache__` folder and try again
-- Reinstall requirements: `pip install --upgrade -r requirements.txt`
+## 📋 System Requirements
 
-## System Requirements
-
-- Python 3.8+
-- Windows, macOS, or Linux
+- Windows 10/11 (for `.exe`) OR Python 3.8+
 - Terminal/Command Prompt with UTF-8 support
-- Internet connection to access server
+- Network connection to access the competition server
