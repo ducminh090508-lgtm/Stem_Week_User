@@ -57,9 +57,6 @@ B. Admin Commands (Used by Admin Dashboard):
    - PENALTY <teamIds> <type> <seconds>
      * Action: Arbitrary time addition to specified teams.
 
-   - SET_WIN <teamId> <true/false>
-     * Action: Manually triggers or revokes the "Win" status for a team.
-
 3. REST API ENDPOINTS
 ---------------------
 Accessible via standard HTTPS GET requests:
