@@ -2,7 +2,7 @@
 
 A standalone terminal-based application for teams to participate in STEM Week competitions.
 
-## 🚀 Download & Fast Start
+## Download & Fast Start
 
 ### Windows (Recommended)
 1. **Download**: Get the latest `StemWeek_User_Portal.exe` from the [GitHub Releases](https://github.com/ducminh090508-lgtm/user-app/releases).
@@ -11,7 +11,7 @@ A standalone terminal-based application for teams to participate in STEM Week co
 
 ---
 
-## 🛠 Features
+## Features
 
 - **Team Login**: Secure PIN-based access for team participation
 - **Question Interface**: Interactive module selection for different subjects (BIO, CHEM, MATH & PHYSICS, CS)
@@ -20,7 +20,7 @@ A standalone terminal-based application for teams to participate in STEM Week co
 - **Answer Submission**: Submit answers with instant feedback
 - **Multi-page Navigation**: Easy switching between questions, timer, and leaderboard
 
-## 💻 Manual Setup (Developers / macOS / Linux)
+## Manual Setup (Developers / macOS / Linux)
 
 ### Installation
 1. Clone this repository or download the source code.
@@ -37,7 +37,7 @@ A standalone terminal-based application for teams to participate in STEM Week co
 
 *(On macOS/Linux, you may need to use `python3` and `pip3`)*
 
-## ⚙️ Configuration
+## Configuration
 
 Edit `config.ini` to set your server connection:
 
@@ -47,7 +47,7 @@ ip = 192.168.1.100      # Change to your server IP
 port = 8080             # Change if using a different port
 ```
 
-## ⌨️ Keyboard Controls
+## Keyboard Controls
 
 ### Login Screen
 - Type your team PIN and press Enter
@@ -62,7 +62,7 @@ port = 8080             # Change if using a different port
 ### Entering Answers
 - Type your answer and press Enter
 
-## 👥 Team PINs
+## Team PINs
 
 Default team PINs (can be configured):
 - `1001` - test1
@@ -70,7 +70,7 @@ Default team PINs (can be configured):
 - `1234` - Team Alpha
 - `5678` - Team Beta
 
-## 🔍 Troubleshooting
+## Troubleshooting
 
 **Can't connect to server**
 - Verify the server IP in `config.ini` is correct
@@ -81,7 +81,7 @@ Default team PINs (can be configured):
 - Contact your event administrator to confirm your team PIN
 - Ensure you're using the correct PIN (case-sensitive)
 
-## 📋 System Requirements
+## System Requirements
 
 - Windows 10/11 (for `.exe`) OR Python 3.8+
 - Terminal/Command Prompt with UTF-8 support
