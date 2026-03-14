@@ -1,0 +1,57 @@
+Screen {
+    background: #101010;
+    color: white;
+}
+
+#main-container {
+    height: 1fr;
+    width: 100%;
+    align: center middle;
+    padding: 2;
+}
+
+#split-view {
+    height: auto;
+    width: auto;
+    layout: horizontal;
+    align: center middle;
+}
+
+#ascii-art {
+    width: auto;
+    color: #e0af68;
+    content-align: right middle;
+    padding-right: 2;
+}
+
+#info-panel {
+    width: auto;
+    content-align: left middle;
+    color: #a9b1d6;
+    padding-left: 2;
+}
+
+.key {
+    color: #f7768e;
+    text-style: bold;
+}
+
+.value {
+    color: #7dcfff;
+}
+
+#input-area {
+    height: 3;
+    width: 60%;
+    margin-top: 2;
+    border: ascii #333333;
+    align: center middle;
+}
+
+Input {
+    background: #101010;
+    border: none;
+    color: #33d17a;
+    width: 100%;
+    text-align: center;
+}
