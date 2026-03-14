@@ -1,0 +1,88 @@
+STEM WEEK SYSTEM ARCHITECTURE & API DOCUMENTATION
+===============================================
+Version: 2.0
+Last Updated: March 2026
+
+1. ARCHITECTURAL OVERVIEW
+-------------------------
+The STEM Week platform is a real-time, distributed competition system built on a custom high-performance C++ backend.
+
+A. Server-Side (Core System v2.0):
+   - Language: C++17
+   - Networking: Custom non-blocking event loop using `poll()`
+   - Security: TLS/SSL encryption for all traffic (WSS/HTTPS) via OpenSSL
+   - Database: SQLite3 for persistent storage of teams, rotations, and submissions
+   - Protocol: Dual-protocol support on the same port (8080 by default)
+     * WebSocket (WSS): Primary real-time bi-directional messaging
+     * HTTP (HTTPS): Secondary REST API for leaderboard extraction
+
+B. Client-Side (User Portal):
+   - Language: Python 3.8+
+   - Interface: Textual (Terminal User Interface Framework)
+   - Communication: Async WebSocket client (websockets library)
+   - Distribution: Standalone Windows Executable (.exe) via PyInstaller
+
+2. WEBSOCKET API COMMANDS
+-------------------------
+The server listens for plain-text strings over the WebSocket connection.
+
+A. Team Commands (Used by User App):
+   - SUBMIT <teamId> <subject> <answer>
+     * Description: Submits an answer for a specific subject module.
+     * Subject IDs: BIO, CHEM, MATH_PHYS, CS, MEGA
+     * Server Response: "CORRECT" or "INCORRECT"
+   
+   - GET_STATUS <teamId>
+     * Description: Syncs team timer and completion status.
+     * Server Response: JSON object
+       Example: {"type":"STATUS", "teamId":3, "elapsed":120, "penalty":300, "total":420, "inProgress":true}
+
+   - GET_LEADERBOARD
+     * Description: Fetches the live rankings for all teams.
+     * Server Response: JSON array of objects sorted by total time.
+
+   - HINT <teamId> <subject>
+     * Description: Requests a hint for a module.
+     * Action: Server adds a fixed penalty (300s) to the team's record.
+
+B. Admin Commands (Used by Admin Dashboard):
+   - ADMIN_LOGIN <password>
+     * Password: [Configured in main.cpp]
+     * Action: Upgrades the current connection to "Admin" status to receive live logs.
+
+   - START <teamIds> / PAUSE <teamIds> / FINISH <teamIds>
+     * teamIds: Comma-separated (e.g., "1,2,3") or ranges (e.g., "1-5").
+     * Action: Controls the timer status for the specified teams.
+
+   - PENALTY <teamIds> <type> <seconds>
+     * Action: Arbitrary time addition to specified teams.
+
+   - SET_WIN <teamId> <true/false>
+     * Action: Manually triggers or revokes the "Win" status for a team.
+
+3. REST API ENDPOINTS
+---------------------
+Accessible via standard HTTPS GET requests:
+
+- GET /api/leaderboard
+  Returns the current rankings in JSON format. Used for public display screens.
+
+- GET /api/debug
+  Returns the full internal state of the database (teams, rotations, submissions) in JSON.
+
+4. DATA FLOW & LOGIC
+--------------------
+1. Connection: Client initiates WSS connection -> Server performs TLS handshake.
+2. Authentication: Client identifies with Team ID.
+3. Competition Loop:
+   a. Admin sends START. Server records timestamp and starts interval calculation.
+   b. Team sends SUBMIT. Server checks against internal answer key.
+   c. If CORRECT: Server pauses the team timer automatically (configurable) and records submission.
+   d. If INCORRECT: Server logs attempt and continues timer.
+4. Finalization: Once all 4 modules (BIO, CHEM, MATH_PHYS, CS) are CORRECT, the MEGA module unlocks.
+
+5. SECURITY MEASURES
+--------------------
+- Anti-Spoofing: Once a connection claims a Team ID, the server locks that ID to that socket. Any attempt to send commands for another Team ID from the same socket will trigger an admin alert.
+- Encryption: All data is encrypted via TLS 1.3 to prevent answer sniffing on the network.
+- Non-Blocking: The server uses a single-threaded event loop with non-blocking sockets to prevent Slowloris-style DoS attacks.

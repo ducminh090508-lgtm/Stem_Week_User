@@ -141,7 +141,7 @@ class QuestionService:
     async def get_leaderboard(self):
         """Requests the current leaderboard data."""
         await self.send_command("GET_LEADERBOARD")
-        # await self.send_command(f"SET_WIN {self.team_id} true") # TODO: remove debug command
+
 
     def _normalize_subject(self, subject: str) -> str:
         """
