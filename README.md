@@ -7,7 +7,7 @@ A standalone terminal-based application for teams to participate in STEM Week co
 ## Download & Fast Start
 
 ### Windows (Recommended)
-1. **Download**: Get the latest `StemWeek_User_Portal.exe` from the [GitHub Releases](https://github.com/ducminh090508-lgtm/user-app/releases).
+1. **Download**: Get the latest `StemWeek_User_Portal.exe` from the [GitHub Releases](https://github.com/ducminh090508-lgtm/Stem_Week_User/releases).
 2. **Configure**: Place the `config.ini` file in the same folder as the `.exe`. Update the `ip` field with the server IP provided by the administrator.
 3. **Run**: Double-click `StemWeek_User_Portal.exe` to start.
 
