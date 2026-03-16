@@ -14,7 +14,7 @@ A standalone terminal-based application for teams to participate in STEM Week co
 ### MacOS (Horrible experience setting it up)
 1. **Download**: Get the latest `StemWeek_User_Portal.app` from the [GitHub Releases](https://github.com/ducminh090508-lgtm/Stem_Week_User/releases)
 2. **Configure**: Update the `ip` field with the server IP provided by administrator
-3. **Run**: Right click the `Stem_Week_User_Portal.app` > show package contents > contents > macOS > `Stem_Week_User_App` to start
+3. **Run**: Right click `Stem_Week_User_Portal.app` > Show Package Contents > Contents > macOS > `Stem_Week_User_App` to start
 ---
 
 ## Features
