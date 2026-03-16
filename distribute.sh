@@ -10,9 +10,10 @@ echo "[*] Packaging STEM Week User App for macOS..."
 
 python3 -m PyInstaller \
     --windowed \
-    --add-data "app/questionProtocol.tcss:." \
+    --add-data "app/interface/question.tcss:." \
+    --add-data "app/interface/dashboard.tcss:." \
     --name "StemWeek_User_App" \
-    app/dashboardProtocol.py
+    main.py
 
 echo
 echo "[OK] Build successful!"

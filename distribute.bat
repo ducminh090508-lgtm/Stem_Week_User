@@ -10,9 +10,10 @@ echo [*] Packaging STEM Week User App...
 :: --name: Sets the name of the output executable
 
 pyinstaller --onefile ^
-    --add-data "app\questionProtocol.tcss;." ^
+    --add-data "app\interface\question.tcss;." ^
+    --add-data "app\interface\dashboard.tcss;." ^
     --name "StemWeek_User_App" ^
-    app\dashboardProtocol.py
+    main.py
 
 echo.
 if %ERRORLEVEL% EQU 0 (
