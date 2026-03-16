@@ -11,10 +11,8 @@ logger = logging.getLogger(__name__)
 
 
 class QuestionService:
-    """
-    Handles all WebSocket communication with the Stem Week server.
-    Provides methods to send commands and register callbacks for incoming events.
-    """
+    # Handles all WebSocket communication with the Stem Week server.
+    # Provides methods to send commands and register callbacks for incoming events.
 
     # Mapping from human-readable subject titles in the UI to protocol IDs
     # used by the C++ server / database (see Subjects table in database.sql).
@@ -26,11 +24,13 @@ class QuestionService:
         "MEGA": "MEGA",
     }
 
-    def __init__(self, team_id: int, uri: str = "wss://localhost:8080"):
+    def __init__(self, team_id: int, team_pin: str, uri: str = "wss://localhost:8080"):
         self.team_id = team_id
+        self.team_pin = team_pin
         self.uri = uri
         self.websocket: Optional[websockets.WebSocketClientProtocol] = None
         self._connected = asyncio.Event()
+        self._authenticated = asyncio.Event()
         self._shutdown = asyncio.Event()
 
         # Callbacks
@@ -44,7 +44,7 @@ class QuestionService:
         self.on_error: Optional[Callable[[str], None]] = None
 
     async def connect(self):
-        """Main loop to connect and handle incoming messages."""
+        # Main loop to connect and handle incoming messages.
         ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
         ssl_context.check_hostname = False
         ssl_context.verify_mode = ssl.CERT_NONE
@@ -59,6 +59,9 @@ class QuestionService:
                     
                     if self.on_connected:
                         self.on_connected()
+                    
+                    # Log in upon connection
+                    await websocket.send(f"VERIFY_PIN {self.team_pin}")
                     
                     async for message in websocket:
                         self._handle_message(message)
@@ -85,7 +88,7 @@ class QuestionService:
                 await asyncio.sleep(5)
 
     def _handle_message(self, message: str):
-        """Parses and routes incoming messages to the appropriate callbacks."""
+        # Parses and routes incoming messages to the appropriate callbacks.
         logger.debug(f"Received: {message}")
         if message.startswith("["): # JSON Leaderboard Array
              try:
@@ -106,6 +109,15 @@ class QuestionService:
                     self.on_protocol_started()
                 elif msg_type == "ROTATION_FINISHED" and self.on_rotation_finished:
                     self.on_rotation_finished()
+                elif msg_type == "PIN_VERIFIED":
+                    self._authenticated.set()
+                    logger.info("Session authenticated successfully.")
+                elif msg_type == "PIN_REJECTED":
+                    self._authenticated.clear()
+                    error_msg = data.get("reason", "Unknown Reason")
+                    logger.error(f"Authentication failed: {error_msg}")
+                    if self.on_error:
+                        self.on_error(f"SESSION_AUTH_FAILED: {error_msg}")
             except json.JSONDecodeError:
                  logger.error("Failed to decode object JSON")
 
@@ -117,7 +129,7 @@ class QuestionService:
                 self.on_feedback(False)
 
     async def send_command(self, command: str) -> bool:
-        """Helper to send a raw command string."""
+        # Helper to send a raw command string.
         if self.websocket and self._connected.is_set():
             try:
                 await self.websocket.send(command)
@@ -131,46 +143,43 @@ class QuestionService:
             return False
 
     async def start_protocol(self):
-        """Starts the timer/protocol for the current team."""
+        # Starts the timer/protocol for the current team.
         await self.send_command(f"START {self.team_id}")
 
     async def get_status(self):
-        """Requests the current time/status."""
+        # Requests the current time/status.
         await self.send_command(f"GET_STATUS {self.team_id}")
 
     async def get_leaderboard(self):
-        """Requests the current leaderboard data."""
+        # Requests the current leaderboard data.
         await self.send_command("GET_LEADERBOARD")
 
 
     def _normalize_subject(self, subject: str) -> str:
-        """
-        Convert a human-readable subject title (e.g. 'MATH AND PHYSICS')
-        into the protocol subject ID expected by the server (e.g. 'MATH_PHYS').
-        """
+        # Convert a human-readable subject title (e.g. 'MATH AND PHYSICS')
+        # into the protocol subject ID expected by the server (e.g. 'MATH_PHYS')
         if subject in self.SUBJECT_PROTOCOL_IDS:
             return self.SUBJECT_PROTOCOL_IDS[subject]
-        # Fallback: remove spaces as a best-effort guess
+
+        # Fallback: remove spaces as like an emergency shit
         return subject.replace(" ", "_")
 
     async def submit_answer(self, subject: str, answer: str):
-        """Submits an answer for a specific subject."""
+        # Submits an answer for a specific subject
         subject_id = self._normalize_subject(subject)
-        # Ensure answer string doesn't have spaces that might break the simple parser
-        # Usually better to send JSON, but keeping format compatible with current C++ server
+
         clean_answer = answer.strip().replace(" ", "_")
         await self.send_command(f"SUBMIT {self.team_id} {subject_id} {clean_answer}")
 
     async def submit_final_code(self, code: str):
-        """Submits the final override PIN as the MEGA subject so it is recorded in the main database."""
+
         subject_id = self._normalize_subject("MEGA")
         clean_code = code.strip().replace(" ", "_")
         await self.send_command(f"SUBMIT {self.team_id} {subject_id} {clean_code}")
 
     def shutdown(self):
-        """Signals the connect loop to exit."""
+        # Signals the connect loop to exit.
         self._shutdown.set()
         if self.websocket:
-            # We can't await close here easily if it's called from sync code,
-            # but the loop will break.
+
             pass

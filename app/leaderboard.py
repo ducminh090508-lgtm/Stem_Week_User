@@ -24,7 +24,7 @@ class Entry:
     inaccurate: int
 
 class Leaderboard(Static):
-    """Renders a themed leaderboard table for STEM Week with a merged-style header."""
+    # Renders a themed leaderboard table for STEM Week with a merged-style header.
     def __init__(self, entries: List[Entry], *, title: str = "RANKING // GLOBAL LEADERBOARD", **kwargs) -> None:
         super().__init__(**kwargs)
         self.entries = entries

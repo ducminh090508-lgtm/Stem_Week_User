@@ -60,10 +60,11 @@ class DashboardApp(App):
     async def on_input_submitted(self, event: Input.Submitted) -> None:
         team_id_input = event.value.strip()
         
-        team_data = self.dashboard_service.verify_team(team_id_input)
+        # Call the new async verification method
+        team_data = await self.dashboard_service.verify_team_online(team_id_input)
         
         if team_data:
-            self.exit(result={"team": team_data, "uri": self.dashboard_service.uri})
+            self.exit(result={"team": team_data, "pin": team_id_input, "uri": self.dashboard_service.uri})
         else:
             self.notify("INVALID TEAM ID", severity="error")
             event.input.value = ""
@@ -80,11 +81,12 @@ def main():
         
         if result_data and isinstance(result_data, dict):
             team_data = result_data["team"]
+            team_pin = result_data["pin"]
             target_uri = result_data["uri"]
-            print(f"\\nInitializing Protocol for {team_data['name']} on {target_uri}...")
+            print(f"\nInitializing Protocol for {team_data['name']} on {target_uri}...")
             
             # Launch Question Protocol and inject URI
-            resultProto = question.run(team_data['id'], team_data['name'], uri=target_uri)
+            resultProto = question.run(team_data['id'], team_data['name'], team_pin=team_pin, uri=target_uri)
             
             if resultProto == 100:
                 continue

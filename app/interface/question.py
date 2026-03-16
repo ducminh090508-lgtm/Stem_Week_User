@@ -182,11 +182,12 @@ class StemApp(App):
         ("escape", "navQuestions", "Back"),
     ]
 
-    def __init__(self, team_id: int, team_name: str, uri: str = "wss://localhost:8080", **kwargs):
+    def __init__(self, team_id: int, team_name: str, team_pin: str, uri: str = "wss://localhost:8080", **kwargs):
         super().__init__(**kwargs)
         self.team_id = team_id
         self.team_name = team_name
-        self.question_service = QuestionService(team_id=team_id, uri=uri)
+        self.team_pin = team_pin
+        self.question_service = QuestionService(team_id=team_id, team_pin=team_pin, uri=uri)
         self.completed_subjects: set[str] = set()
         self.final_unlocked: bool = False
         self._last_submitted_subject: str | None = None
@@ -448,8 +449,8 @@ class StemApp(App):
         self.exit(result=100)
 
 
-def run(team_id: int = 1, team_name: str = "Team 1", uri: str = "wss://localhost:8080"):
-    app = StemApp(team_id=team_id, team_name=team_name, uri=uri)
+def run(team_id: int = 1, team_name: str = "Team 1", team_pin: str = "1001", uri: str = "wss://localhost:8080"):
+    app = StemApp(team_id=team_id, team_name=team_name, team_pin=team_pin, uri=uri)
     return app.run()
 
 

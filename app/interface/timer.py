@@ -68,7 +68,7 @@ class StopwatchView(Static):
         self.paused = False
 
     def sync_time(self, total_seconds: int, paused: bool) -> None:
-        """Update local timer with authoritative time from server."""
+        # Update local timer with authoritative time from server.
         self._base_elapsed = total_seconds
         self._run_start = time.perf_counter()
         self.elapsed_seconds = total_seconds

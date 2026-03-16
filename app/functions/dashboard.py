@@ -1,38 +1,53 @@
 import argparse
 import sys
+import os
+import json
+import ssl
+import websockets
+import asyncio
 from typing import Optional, Dict
 
-# Team Mapping: ID -> {id, name}
-# In a real app, this could be fetched from the server or a database.
-TEAMS = {
-    "1001": {"id": 1, "name": "test1"},
-    "1002": {"id": 2, "name": "test2"},
-    "1234": {"id": 3, "name": "Team Alpha"},
-    "5678": {"id": 4, "name": "Team Beta"},
-}
-
 class DashboardService:
-    """
-    Handles network and authentication configuration for the dashboard.
-    """
+    # Handles network and authentication verification with the server
     def __init__(self, target_ip: str = "127.0.0.1", port: int = 8080):
         self.target_ip = target_ip
         self.port = port
         self.uri = f"wss://{self.target_ip}:{self.port}"
 
-    def verify_team(self, team_pin: str) -> Optional[Dict]:
-        """
-        Validates the team PIN and returns the team details if valid.
-        """
+    async def verify_team_online(self, team_pin: str) -> Optional[Dict]:
+        # Connects to the server temporarily to verify the PIN
         clean_pin = team_pin.strip()
-        if clean_pin in TEAMS:
-            return TEAMS[clean_pin]
-        return None
+        if not clean_pin:
+            return None
+
+        ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+        ssl_context.check_hostname = False
+        ssl_context.verify_mode = ssl.CERT_NONE
+
+        try:
+            # Set a timeout for the entire verification process
+            async with asyncio.timeout(5):
+                async with websockets.connect(self.uri, ssl=ssl_context) as websocket:
+                    # Send verification command
+                    await websocket.send(f"VERIFY_PIN {clean_pin}")
+                    
+                    # Wait for response
+                    response = await websocket.recv()
+                    data = json.loads(response)
+                    
+                    if data.get("type") == "PIN_VERIFIED":
+                        return {
+                            "id": data.get("teamId"),
+                            "name": data.get("teamName")
+                        }
+                    else:
+                        return None
+        except Exception as e:
+            print(f"Connection error during PIN verification: {e}")
+            return None
 
 def parse_args():
-    """
-    Parses command line arguments for the server IP.
-    """
+    # Parses command line arguments for the server IP
     parser = argparse.ArgumentParser(description="STEM WEEK Terminal Dashboard")
     parser.add_argument(
         "server_ip", 
