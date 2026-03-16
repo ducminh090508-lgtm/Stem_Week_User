@@ -8,7 +8,7 @@ echo "[*] Packaging STEM Week User App for macOS..."
 # --add-data: includes the .tcss file inside the app bundle
 # --name: sets the app name
 
-pyinstaller \
+python3 -m PyInstaller \
     --windowed \
     --add-data "app/questionProtocol.tcss:." \
     --name "StemWeek_User_App" \
