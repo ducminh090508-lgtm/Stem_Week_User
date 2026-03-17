@@ -13,12 +13,40 @@ from textual.widgets import Static, Input, Header, Footer
 from app.functions.dashboard import DashboardService, parse_args
 from app.interface import question
 
-class DashboardApp(App):
-    CSS_PATH = "dashboard.tcss"
+# Utility to locate bundled resources when running as a PyInstaller executable
+def resource_path(relative_path: str) -> str:
+    """Resolve a path to bundled resources.
 
-    def __init__(self, server_ip: str, **kwargs):
+    Tries several locations so that both development runs and PyInstaller
+    single-file executables can find the file. Returns the first existing
+    candidate, or a sensible default path.
+    """
+    try:
+        base_path = sys._MEIPASS  # type: ignore[attr-defined]
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    candidates = [
+        os.path.join(base_path, relative_path),
+        os.path.join(base_path, os.path.basename(relative_path)),
+        os.path.abspath(relative_path),
+    ]
+
+    for cand in candidates:
+        if os.path.exists(cand):
+            return cand
+
+    # Return first candidate (likely the bundled location) so the caller
+    # receives a consistent path even if the file is missing.
+    return candidates[0]
+
+class DashboardApp(App):
+    # Resolve CSS path so it works when running from source and when bundled by PyInstaller
+    CSS_PATH = resource_path("app/interface/dashboard.tcss")
+
+    def __init__(self, server_ip: str, server_port: int = 8080, **kwargs):
         super().__init__(**kwargs)
-        self.dashboard_service = DashboardService(target_ip=server_ip)
+        self.dashboard_service = DashboardService(target_ip=server_ip, port=server_port)
 
     def compose(self) -> ComposeResult:
         duckAscii = """
@@ -72,11 +100,18 @@ class DashboardApp(App):
     def on_mount(self) -> None:
         self.title = "STEM WEEK TERMINAL // ACCESS"
 
-def main():
-    args = parse_args()
-    
+def main(server_ip: str | None = None, server_port: int | None = None):
+    # If values aren't provided programmatically, fall back to CLI parsing.
+    if server_ip is None or server_port is None:
+        args = parse_args()
+        if server_ip is None:
+            server_ip = args.server_ip
+        if server_port is None:
+            # allow parse_args to be extended later; default port 8080
+            server_port = 8080
+
     while True:
-        app = DashboardApp(server_ip=args.server_ip)
+        app = DashboardApp(server_ip=server_ip, server_port=server_port)
         result_data = app.run()
         
         if result_data and isinstance(result_data, dict):

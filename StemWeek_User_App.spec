@@ -5,7 +5,7 @@ a = Analysis(
     ['main.py'],
     pathex=[],
     binaries=[],
-    datas=[('app\\interface\\question.tcss', '.'), ('app\\interface\\dashboard.tcss', '.')],
+    datas=[('app\\interface\\question.tcss', 'app/interface'), ('app\\interface\\dashboard.tcss', 'app/interface')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
