@@ -6,6 +6,13 @@ import ssl
 import websockets
 import asyncio
 from typing import Optional, Dict
+from pathlib import Path
+
+LOG_FILE = Path.home() / "stemweek_debug.log"
+
+def debug_log(*args):
+    with LOG_FILE.open("a", encoding="utf-8") as f:
+        print(*args, file=f, flush=True)
 
 class DashboardService:
     # Handles network and authentication verification with the server
@@ -14,36 +21,57 @@ class DashboardService:
         self.port = port
         self.uri = f"wss://{self.target_ip}:{self.port}"
 
-    async def verify_team_online(self, team_pin: str) -> Optional[Dict]:
-        # Connects to the server temporarily to verify the PIN
+    async def verify_team_online(self, team_pin: str):
         clean_pin = team_pin.strip()
         if not clean_pin:
+            debug_log("[Dashboard] Empty PIN")
             return None
 
         ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
         ssl_context.check_hostname = False
         ssl_context.verify_mode = ssl.CERT_NONE
 
+        debug_log("[Dashboard] verify_team_online entered")
+        debug_log("[Dashboard] URI =", self.uri)
+        debug_log("[Dashboard] PIN =", clean_pin)
+
         try:
-            # Set a timeout for the entire verification process
-            async with asyncio.timeout(5):
-                async with websockets.connect(self.uri, ssl=ssl_context) as websocket:
-                    # Send verification command
+            async with asyncio.timeout(10):
+                debug_log("[Dashboard] Opening websocket...")
+                async with websockets.connect(
+                    self.uri,
+                    ssl=ssl_context,
+                    open_timeout=30,
+                    close_timeout=10,
+                    ping_interval=None,
+                    compression=None,
+                    proxy=None,
+                ) as websocket:
+                    debug_log("[Dashboard] websocket opened")
                     await websocket.send(f"VERIFY_PIN {clean_pin}")
-                    
-                    # Wait for response
+                    debug_log("[Dashboard] VERIFY_PIN sent")
+
                     response = await websocket.recv()
+                    debug_log("[Dashboard] response =", response)
+
                     data = json.loads(response)
-                    
+                    debug_log("[Dashboard] parsed response =", data)
+
                     if data.get("type") == "PIN_VERIFIED":
-                        return {
+                        result = {
                             "id": data.get("teamId"),
-                            "name": data.get("teamName")
+                            "name": data.get("teamName"),
                         }
-                    else:
-                        return None
+                        debug_log("[Dashboard] PIN verified:", result)
+                        return result
+
+                    debug_log("[Dashboard] PIN rejected or unexpected response")
+                    return None
+
         except Exception as e:
-            print(f"Connection error during PIN verification: {e}")
+            import traceback
+            debug_log("[Dashboard] exception =", repr(e))
+            debug_log(traceback.format_exc())
             return None
 
 def parse_args():

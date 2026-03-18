@@ -1,0 +1,3 @@
+([('StemWeek_User_App',
+   '/Users/testaccount/Desktop/Stem_Week_User/dist/StemWeek_User_App',
+   'EXECUTABLE')],)

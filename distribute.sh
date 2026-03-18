@@ -8,10 +8,13 @@ echo "[*] Packaging STEM Week User App for macOS..."
 # --add-data: includes the .tcss file inside the app bundle
 # --name: sets the app name
 
-python3 -m PyInstaller \
-    --windowed \
+ls main.py
+
+pyinstaller \
+    --windowed --clean \
     --add-data "app/interface/question.tcss:app/interface" \
     --add-data "app/interface/dashboard.tcss:app/interface" \
+    --collect-all websockets \
     --name "StemWeek_User_App" \
     main.py
 

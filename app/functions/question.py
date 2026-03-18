@@ -4,18 +4,21 @@ import websockets
 import json
 import logging
 from typing import Callable, Optional
+from pathlib import Path
 
-# Set up logging for the network layer
+LOG_FILE = Path.home() / "stemweek_debug.log"
+
+
+def debug_log(*args):
+    with LOG_FILE.open("a", encoding="utf-8") as f:
+        print(*args, file=f, flush=True)
+
+
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 
 class QuestionService:
-    # Handles all WebSocket communication with the Stem Week server.
-    # Provides methods to send commands and register callbacks for incoming events.
-
-    # Mapping from human-readable subject titles in the UI to protocol IDs
-    # used by the C++ server / database (see Subjects table in database.sql).
     SUBJECT_PROTOCOL_IDS = {
         "BIO": "BIO",
         "CHEM": "CHEM",
@@ -33,7 +36,6 @@ class QuestionService:
         self._authenticated = asyncio.Event()
         self._shutdown = asyncio.Event()
 
-        # Callbacks
         self.on_connected: Optional[Callable[[], None]] = None
         self.on_disconnected: Optional[Callable[[str], None]] = None
         self.on_status_update: Optional[Callable[[dict], None]] = None
@@ -50,38 +52,48 @@ class QuestionService:
 
         while not self._shutdown.is_set():
             try:
-                logger.info(f"Connecting to {self.uri}...")
-                print(f"[QuestionService] Connecting to {self.uri}...")
+                debug_log("[Question] connect entered")
+                debug_log("[Question] URI =", self.uri)
+                debug_log("[Question] team_pin =", self.team_pin)
+                debug_log("[Question] Opening websocket...")
 
                 async with websockets.connect(
                     self.uri,
                     ssl=ssl_context,
-                    open_timeout=15,
-                    close_timeout=15,
-                    ping_interval=20,
-                    ping_timeout=20,
+                    open_timeout=30,
+                    close_timeout=10,
+                    ping_interval=None,
+                    compression=None,
+                    proxy=None,
                 ) as websocket:
-                    print("[QuestionService] websocket open")
+                    debug_log("[Question] websocket opened")
+
                     self.websocket = websocket
                     self._connected.set()
+                    self._authenticated.clear()
 
                     if self.on_connected:
                         self.on_connected()
 
-                    print(f"[QuestionService] sending VERIFY_PIN {self.team_pin}")
+                    debug_log("[Question] sending VERIFY_PIN")
                     await websocket.send(f"VERIFY_PIN {self.team_pin}")
+                    debug_log("[Question] VERIFY_PIN sent")
 
                     async for message in websocket:
-                        print(f"[QuestionService] recv: {message}")
+                        debug_log("[Question] recv =", message)
                         self._handle_message(message)
 
             except asyncio.CancelledError:
-                print("[QuestionService] connect task cancelled")
+                import traceback
+                debug_log("[Question] connect task cancelled")
+                debug_log(traceback.format_exc())
                 raise
+
             except Exception as e:
-                msg = f"Connection failed: {repr(e)}"
-                logger.error(msg)
-                print(f"[QuestionService] {msg}")
+                import traceback
+                debug_log("[Question] exception =", repr(e))
+                debug_log(traceback.format_exc())
+
                 if self.on_error:
                     self.on_error(repr(e))
 
@@ -90,52 +102,55 @@ class QuestionService:
             self._authenticated.clear()
 
             if not self._shutdown.is_set():
-                print("[QuestionService] Retrying in 5 seconds...")
+                debug_log("[Question] retrying in 5 seconds...")
                 await asyncio.sleep(5)
 
     def _handle_message(self, message: str):
-        # Parses and routes incoming messages to the appropriate callbacks.
-        logger.debug(f"Received: {message}")
-        if message.startswith("["): # JSON Leaderboard Array
-             try:
-                 data = json.loads(message)
-                 if self.on_leaderboard_update:
-                     self.on_leaderboard_update(data)
-             except json.JSONDecodeError:
-                 logger.error("Failed to decode leaderboard JSON")
-        
-        elif message.startswith("{"): # JSON Object (e.g. STATUS, PROTOCOL_STARTED)
-            try:
-                data = json.loads(message)
-                msg_type = data.get("type")
-                
-                if msg_type == "STATUS" and self.on_status_update:
-                    self.on_status_update(data)
-                elif msg_type == "PROTOCOL_STARTED" and self.on_protocol_started:
-                    self.on_protocol_started()
-                elif msg_type == "ROTATION_FINISHED" and self.on_rotation_finished:
-                    self.on_rotation_finished()
-                elif msg_type == "PIN_VERIFIED":
-                    self._authenticated.set()
-                    logger.info("Session authenticated successfully.")
-                elif msg_type == "PIN_REJECTED":
-                    self._authenticated.clear()
-                    error_msg = data.get("reason", "Unknown Reason")
-                    logger.error(f"Authentication failed: {error_msg}")
-                    if self.on_error:
-                        self.on_error(f"SESSION_AUTH_FAILED: {error_msg}")
-            except json.JSONDecodeError:
-                 logger.error("Failed to decode object JSON")
+        debug_log("[Question] _handle_message raw =", message)
 
-        elif message == "CORRECT":
-            if self.on_feedback:
-                self.on_feedback(True)
-        elif message == "INCORRECT":
-            if self.on_feedback:
-                self.on_feedback(False)
+        try:
+            data = json.loads(message)
+            debug_log("[Question] _handle_message parsed =", data)
+
+            msg_type = data.get("type")
+
+            if msg_type == "PIN_VERIFIED":
+                self._authenticated.set()
+                debug_log("[Question] authenticated set")
+
+            elif msg_type == "STATUS":
+                if self.on_status_update:
+                    self.on_status_update(data)
+
+            elif msg_type == "LEADERBOARD":
+                teams = data.get("teams", [])
+                if self.on_leaderboard_update:
+                    self.on_leaderboard_update(teams)
+
+            elif msg_type == "FEEDBACK":
+                correct = bool(data.get("correct", False))
+                if self.on_feedback:
+                    self.on_feedback(correct)
+
+            elif msg_type == "PROTOCOL_STARTED":
+                if self.on_protocol_started:
+                    self.on_protocol_started()
+
+            elif msg_type == "ROTATION_FINISHED":
+                if self.on_rotation_finished:
+                    self.on_rotation_finished()
+
+            elif msg_type == "ERROR":
+                reason = data.get("reason", "Unknown error")
+                if self.on_error:
+                    self.on_error(reason)
+
+        except Exception as e:
+            import traceback
+            debug_log("[Question] _handle_message exception =", repr(e))
+            debug_log(traceback.format_exc())
 
     async def send_command(self, command: str) -> bool:
-        # Helper to send a raw command string.
         if self.websocket and self._connected.is_set():
             try:
                 await self.websocket.send(command)
@@ -144,48 +159,32 @@ class QuestionService:
                 logger.error(f"Failed to send command: {e}")
                 return False
         else:
-            # Don't notify user for expected "not connected" during startup/reconnect
             logger.warning(f"Cannot send command '{command}': Not connected.")
             return False
 
     async def start_protocol(self):
-        # Starts the timer/protocol for the current team.
         await self.send_command(f"START {self.team_id}")
 
     async def get_status(self):
-        # Requests the current time/status.
         await self.send_command(f"GET_STATUS {self.team_id}")
 
     async def get_leaderboard(self):
-        # Requests the current leaderboard data.
         await self.send_command("GET_LEADERBOARD")
 
-
     def _normalize_subject(self, subject: str) -> str:
-        # Convert a human-readable subject title (e.g. 'MATH AND PHYSICS')
-        # into the protocol subject ID expected by the server (e.g. 'MATH_PHYS')
         if subject in self.SUBJECT_PROTOCOL_IDS:
             return self.SUBJECT_PROTOCOL_IDS[subject]
-
-        # Fallback: remove spaces as like an emergency shit
         return subject.replace(" ", "_")
 
     async def submit_answer(self, subject: str, answer: str):
-        # Submits an answer for a specific subject
         subject_id = self._normalize_subject(subject)
-
         clean_answer = answer.strip().replace(" ", "_")
         await self.send_command(f"SUBMIT {self.team_id} {subject_id} {clean_answer}")
 
     async def submit_final_code(self, code: str):
-
         subject_id = self._normalize_subject("MEGA")
         clean_code = code.strip().replace(" ", "_")
         await self.send_command(f"SUBMIT {self.team_id} {subject_id} {clean_code}")
 
     def shutdown(self):
-        # Signals the connect loop to exit.
         self._shutdown.set()
-        if self.websocket:
-
-            pass

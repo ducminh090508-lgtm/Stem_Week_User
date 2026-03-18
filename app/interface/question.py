@@ -9,6 +9,7 @@ from textual.app import App, ComposeResult
 from textual.containers import Container, Vertical
 from textual.widgets import Static, Header, Footer, Label, Input
 from textual import events
+from textual.css.query import NoMatches
 from rich.text import Text
 
 from app.interface.timer import StopwatchView
@@ -21,7 +22,7 @@ from app.functions.question import QuestionService
 
 SUBJECT_CONFIG = {
     "BIO": {
-        "title": "BIO",
+        "title": "Mysterious Death",
         "color": "#f07178",
         "desc": "Explore the wonders of life. Identify the species and complete the genetic sequence.",
         "id": "btn-bio",
@@ -45,6 +46,7 @@ SUBJECT_CONFIG = {
         "id": "btn-cs",
     },
 }
+
 
 class ModuleCard(Static, can_focus=True):
     def __init__(self, idName: str, title: str, color: str):
@@ -84,6 +86,7 @@ class ModuleCard(Static, can_focus=True):
             event.prevent_default()
             event.stop()
 
+
 class FinalPuzzleCard(Static, can_focus=True):
     def __init__(self):
         super().__init__(
@@ -118,6 +121,7 @@ class FinalPuzzleCard(Static, can_focus=True):
             self.app.switchToFinalPuzzle()
             event.prevent_default()
             event.stop()
+
 
 class QuestionSelectionView(Container):
     def __init__(self, final_unlocked: bool = False, **kwargs):
@@ -417,15 +421,21 @@ class StemApp(App):
         target_id = f"page-input-{subject.lower().replace(' ', '')}"
         existing = switcher.query(f"#{target_id}")
 
+        def focus_input():
+            try:
+                view.query_one(Input).focus()
+            except NoMatches:
+                pass
+
         if existing:
             view = existing.first()
             view.display = True
-            view.query_one(Input).focus()
+            self.call_after_refresh(focus_input)
         else:
             view = InputView(subject, found_config["color"], found_config["desc"], id=target_id)
             view.add_class("layout-horizontal")
             switcher.mount(view)
-            view.query_one(Input).focus()
+            self.call_after_refresh(focus_input)
 
     def switchToFinalPuzzle(self) -> None:
         switcher = self.query_one("#main-switcher")
