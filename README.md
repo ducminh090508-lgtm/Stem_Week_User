@@ -20,9 +20,11 @@ A standalone terminal-based application for teams to participate in STEM Week co
 4. **Authorize**: Navigate to your System Settings > Privacy & Security, scroll down and you should see something like this. Click `Open Anyway`
 <img width="451" height="111" alt="Screenshot 2026-03-18 at 12 33 53" src="https://github.com/user-attachments/assets/bfb6ba5f-be20-43bc-a9e3-d71860096c02" />
 
-(Note: You might be also be prompted to allow the .app file to run, just allow it anyways and run the terminal application shown here)
+You will also be prompted to allow the .app file to run, just allow it anyways and run the terminal application (shown here)
 
 <img width="119" height="120" alt="Screenshot 2026-03-18 at 12 40 27" src="https://github.com/user-attachments/assets/f1900329-9400-4688-a14a-42f8e6b74003" />
+
+(Note: The .app file will never run on its own, you will need to run the terminal application)
 
 5. **Configure**: You'll be prompted to enter the server IP, which will be provided by your administrator
 <img width="553" height="108" alt="Screenshot 2026-03-18 at 12 44 44" src="https://github.com/user-attachments/assets/ffd9278f-4732-47dd-8828-635d10dd684b" />
