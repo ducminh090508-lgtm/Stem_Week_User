@@ -44,46 +44,52 @@ class QuestionService:
         self.on_error: Optional[Callable[[str], None]] = None
 
     async def connect(self):
-        # Main loop to connect and handle incoming messages.
         ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
         ssl_context.check_hostname = False
         ssl_context.verify_mode = ssl.CERT_NONE
-        
+
         while not self._shutdown.is_set():
             try:
                 logger.info(f"Connecting to {self.uri}...")
-                print(f"[QuestionService] Connecting to {self.uri}...")  # debug print
-                async with websockets.connect(self.uri, ssl=ssl_context) as websocket:
+                print(f"[QuestionService] Connecting to {self.uri}...")
+
+                async with websockets.connect(
+                    self.uri,
+                    ssl=ssl_context,
+                    open_timeout=15,
+                    close_timeout=15,
+                    ping_interval=20,
+                    ping_timeout=20,
+                ) as websocket:
+                    print("[QuestionService] websocket open")
                     self.websocket = websocket
                     self._connected.set()
-                    
+
                     if self.on_connected:
                         self.on_connected()
-                    
-                    # Log in upon connection
+
+                    print(f"[QuestionService] sending VERIFY_PIN {self.team_pin}")
                     await websocket.send(f"VERIFY_PIN {self.team_pin}")
-                    
+
                     async for message in websocket:
+                        print(f"[QuestionService] recv: {message}")
                         self._handle_message(message)
-                        
-            except websockets.exceptions.ConnectionClosedError as e:
-                msg = f"Connection closed: {e}"
-                logger.warning(msg)
-                print(f"[QuestionService] {msg}")
-                if self.on_disconnected:
-                    self.on_disconnected(str(e))
+
+            except asyncio.CancelledError:
+                print("[QuestionService] connect task cancelled")
+                raise
             except Exception as e:
                 msg = f"Connection failed: {repr(e)}"
                 logger.error(msg)
                 print(f"[QuestionService] {msg}")
                 if self.on_error:
                     self.on_error(repr(e))
-                
+
             self.websocket = None
             self._connected.clear()
-            
+            self._authenticated.clear()
+
             if not self._shutdown.is_set():
-                logger.info("Retrying in 5 seconds...")
                 print("[QuestionService] Retrying in 5 seconds...")
                 await asyncio.sleep(5)
 
