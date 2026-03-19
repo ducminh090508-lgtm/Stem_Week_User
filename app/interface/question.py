@@ -19,30 +19,37 @@ from app.leaderboard import Leaderboard, Entry
 # Import the backend logic
 from app.functions.question import QuestionService
 
+SUBJECT_PROTOCOL_IDS = {
+    "Mysterious Death": "BIO",
+    "CHEM": "CHEM",
+    "MATH AND PHYSICS": "MATH_PHYS",
+    "CS": "CS",
+    "FINAL PUZZLE": "MEGA",
+}
 
 SUBJECT_CONFIG = {
     "BIO": {
         "title": "Mysterious Death",
         "color": "#f07178",
-        "desc": "Explore the wonders of life. Identify the species and complete the genetic sequence.",
+        "desc": "Find the criminal and toxin in this biological narrative of death, written not in words, but in cells, enzymes, and failing organs.",
         "id": "btn-bio",
     },
     "CHEM": {
-        "title": "CHEM",
+        "title": "Abandoned Mine",
         "color": "#33d17a",
-        "desc": "Analyze the reactions. Balance the equations and identify the mysterious compound.",
+        "desc": "Following a raid on an abandoned mine previously used by organised crime, government agents recovered fragments a seized mechanical device.",
         "id": "btn-chem",
     },
     "MATH AND PHYSICS": {
-        "title": "MATH AND PHYSICS",
+        "title": "Wireless Stalkers",
         "color": "#4cc9f0",
-        "desc": "Solve the fundamental laws. Calculate the forces and find the unknown variables.",
+        "desc": "A vast spying network is built by powerful electromagnetic radiation tools, leaking private data to criminals. ",
         "id": "btn-mathphysics",
     },
     "CS": {
-        "title": "CS",
+        "title": "Chromatic Cipher",
         "color": "#f72585",
-        "desc": "Hack into the system. Decipher the code and debug the faulty algorithms.",
+        "desc": "A rogue programmer has hidden a classified message inside a sequence of corrupted colour codes.",
         "id": "btn-cs",
     },
 }
@@ -158,11 +165,6 @@ class InputView(Container):
         with Vertical(classes="main-content-area") as area:
             area.styles.border = ("round", "#333333")
             yield Static(f"[{self.color}]// AUTHORIZED ENTRY //[/]", classes="area-header")
-
-            with Vertical(id="question-list"):
-                yield Label("\nPart 1 : [_ _ _ _ _] ( )")
-                yield Label("Part 2 : [_ _ _ _ _] ( )")
-                yield Label("Final  : [_ _ _ _ _] ( )\n")
 
             yield Static("", classes="spacer")
             yield Static("", id="answer-feedback")

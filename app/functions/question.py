@@ -20,11 +20,11 @@ logger = logging.getLogger(__name__)
 
 class QuestionService:
     SUBJECT_PROTOCOL_IDS = {
-        "BIO": "BIO",
-        "CHEM": "CHEM",
-        "MATH AND PHYSICS": "MATH_PHYS",
-        "CS": "CS",
-        "MEGA": "MEGA",
+        "Mysterious Death": "BIO",
+        "Abandoned Mine": "CHEM",
+        "Wireless Stalkers": "MATH_PHYS",
+        "Chromatic Cipher": "CS",
+        "FINAL PUZZLE": "MEGA",
     }
 
     def __init__(self, team_id: int, team_pin: str, uri: str = "wss://localhost:8080"):
@@ -107,6 +107,17 @@ class QuestionService:
 
     def _handle_message(self, message: str):
         debug_log("[Question] _handle_message raw =", message)
+
+        # Handle plain-text responses first
+        if message == "CORRECT":
+            if self.on_feedback:
+                self.on_feedback(True)
+            return
+
+        if message == "INCORRECT":
+            if self.on_feedback:
+                self.on_feedback(False)
+            return
 
         try:
             data = json.loads(message)
