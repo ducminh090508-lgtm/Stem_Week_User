@@ -10,9 +10,9 @@ A standalone terminal-based application for teams to participate in STEM Week co
 1. **Download**: Get the latest `StemWeek_User_Portal.exe` from the [GitHub Releases](https://github.com/ducminh090508-lgtm/Stem_Week_User/releases).
 2. **Run**: Double-click `StemWeek_User_Portal.exe` to start.
 3. **Blocked**: Windows Defender will say my app is suspicious, don't worry all I do is track ur public IP address.
-<img width="784" height="714" alt="{7273D1C1-1EB0-448A-B24F-27E6CCDD551B}" src="https://github.com/user-attachments/assets/77445ebd-e280-49bc-8ead-174661ceac8c" />
+<img width="784/2" height="714/2" alt="{7273D1C1-1EB0-448A-B24F-27E6CCDD551B}" src="https://github.com/user-attachments/assets/77445ebd-e280-49bc-8ead-174661ceac8c" />
 4. **Authorize**: Click on more info > Run anyway
-<img width="689" height="641" alt="{A16F7980-5CBB-4227-8DE0-8EAFF9F3B03A}" src="https://github.com/user-attachments/assets/16f46015-a252-4224-ace5-f31d2d8e489e" />
+<img width="689/2" height="641/2" alt="{A16F7980-5CBB-4227-8DE0-8EAFF9F3B03A}" src="https://github.com/user-attachments/assets/16f46015-a252-4224-ace5-f31d2d8e489e" />
 
 5. **Configure**: You'll be prompted to enter the server IP, which will be provided by your administrator
 
