@@ -19,20 +19,19 @@ A standalone terminal-based application for teams to participate in STEM Week co
 
 ### MacOS
 1. **Download**: Get the latest `StemWeek_User_Portal.zip` from the [GitHub Releases](https://github.com/ducminh090508-lgtm/Stem_Week_User/releases)
-2. **Run**: Unzip the file (if needed), Right click `StemWeek_User_Portal.app` > Show Package Contents > Contents > macOS > `StemWeek_User_App`
+2. **Run**: Unzip the file (if needed), and run `StemWeek_User_App.app`
 3. **Blocked**: MacOS will prevent the program from running, do not panic. 
 <img width="245" height="266" alt="Screenshot 2026-03-18 at 12 34 30" src="https://github.com/user-attachments/assets/a8601506-3a21-41e5-8f2d-407b4164dd2f" />
 
 4. **Authorize**: Navigate to your System Settings > Privacy & Security, scroll down and you should see something like this. Click `Open Anyway`
 <img width="451" height="111" alt="Screenshot 2026-03-18 at 12 33 53" src="https://github.com/user-attachments/assets/bfb6ba5f-be20-43bc-a9e3-d71860096c02" />
 
-You will also be prompted to allow the .app file to run, just allow it anyways and run the terminal application (shown here)
-
+5. **Run (again)**: Right click `StemWeek_User_Portal.app` > Show Package Contents > Contents > macOS > `StemWeek_User_App` (shown here)
 <img width="119" height="120" alt="Screenshot 2026-03-18 at 12 40 27" src="https://github.com/user-attachments/assets/f1900329-9400-4688-a14a-42f8e6b74003" />
 
 (Note: The .app file will never run on its own, you will need to run the terminal application)
 
-5. **Configure**: You'll be prompted to enter the server IP, which will be provided by your administrator
+6. **Configure**: You'll be prompted to enter the server IP, which will be provided by your administrator
 <img width="553" height="108" alt="Screenshot 2026-03-18 at 12 44 44" src="https://github.com/user-attachments/assets/ffd9278f-4732-47dd-8828-635d10dd684b" />
 
 ---
