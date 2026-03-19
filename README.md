@@ -2,7 +2,7 @@
 
 A standalone terminal-based application for teams to participate in STEM Week competitions.
 
-[📄 System Architecture & API Documentation](documentation.txt)
+[System Architecture & API Documentation](documentation.txt)
 
 ## Download & Fast Start
 
