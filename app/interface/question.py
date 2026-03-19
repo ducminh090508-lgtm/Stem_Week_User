@@ -19,14 +19,6 @@ from app.leaderboard import Leaderboard, Entry
 # Import the backend logic
 from app.functions.question import QuestionService
 
-SUBJECT_PROTOCOL_IDS = {
-    "Mysterious Death": "BIO",
-    "CHEM": "CHEM",
-    "MATH AND PHYSICS": "MATH_PHYS",
-    "CS": "CS",
-    "FINAL PUZZLE": "MEGA",
-}
-
 SUBJECT_CONFIG = {
     "BIO": {
         "title": "Mysterious Death",
@@ -312,12 +304,12 @@ class StemApp(App):
                 rank = item.get("rank", i + 1)
                 rank_label = f"{rank:02d}" if isinstance(rank, int) else str(rank)
                 name = item.get("name", f"Team {i+1}")
-                total = item.get("total")
-                if total is None or total < 0:
+                score = item.get("score")
+                if score is None or score < 0:
                     time_display = "DNF"
                 else:
-                    minutes = int(total) // 60
-                    seconds = int(total) % 60
+                    minutes = int(score) // 60
+                    seconds = int(score) % 60
                     time_display = f"{minutes:02d}:{seconds:02d}"
 
                 entries.append(

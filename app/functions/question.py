@@ -123,6 +123,12 @@ class QuestionService:
             data = json.loads(message)
             debug_log("[Question] _handle_message parsed =", data)
 
+            # Server may send leaderboard as a raw JSON list
+            if isinstance(data, list):
+                if self.on_leaderboard_update:
+                    self.on_leaderboard_update(data)
+                return
+
             msg_type = data.get("type")
 
             if msg_type == "PIN_VERIFIED":
@@ -160,7 +166,7 @@ class QuestionService:
             import traceback
             debug_log("[Question] _handle_message exception =", repr(e))
             debug_log(traceback.format_exc())
-
+            
     async def send_command(self, command: str) -> bool:
         if self.websocket and self._connected.is_set():
             try:
