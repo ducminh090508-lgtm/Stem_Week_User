@@ -29,6 +29,9 @@ A standalone terminal-based application for teams to participate in STEM Week co
 5. **Run (again)**: Right click `StemWeek_User_Portal.app` > Show Package Contents > Contents > macOS > `StemWeek_User_App` (shown here)
 <img width="119" height="120" alt="Screenshot 2026-03-18 at 12 40 27" src="https://github.com/user-attachments/assets/f1900329-9400-4688-a14a-42f8e6b74003" />
 
+(This GIF shows steps 4 and 5)
+![stemweek](https://github.com/user-attachments/assets/52bd3ae8-fcb5-4b5c-b6b9-607564e90d8a)
+
 (Note: The .app file will never run on its own, you will need to run the terminal application)
 
 6. **Configure**: You'll be prompted to enter the server IP, which will be provided by your administrator
